@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f6f8">
+  <title>Mein 5 × 5-Farbmuster</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #20242a;
+      background: #f4f6f8;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      width: min(100% - 32px, 680px);
+      margin: 0 auto;
+      padding: 28px 0 36px;
+      text-align: center;
+    }
+
+    h1 { margin: 0 0 8px; font-size: clamp(1.5rem, 5vw, 2rem); }
+    .intro { margin: 0 0 20px; color: #515a65; }
+
+    .palette {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 0 auto 20px;
+    }
+
+    button {
+      color: inherit;
+      font: inherit;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .color-button {
+      min-width: 76px;
+      padding: 8px 10px;
+      border: 2px solid #c3c9d0;
+      border-radius: 10px;
+      background: #fff;
+    }
+
+    .color-button[aria-pressed="true"] {
+      border-color: #20242a;
+      box-shadow: 0 0 0 2px #fff, 0 0 0 4px #20242a;
+    }
+
+    .swatch {
+      display: block;
+      height: 28px;
+      margin-bottom: 5px;
+      border-radius: 5px;
+    }
+
+    .eraser-button {
+      align-self: center;
+      min-height: 44px;
+      padding: 8px 12px;
+      border: 2px solid #c3c9d0;
+      border-radius: 10px;
+      background: #fff;
+    }
+
+    .eraser-button[aria-pressed="true"] {
+      border-color: #20242a;
+      box-shadow: 0 0 0 2px #fff, 0 0 0 4px #20242a;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      width: min(100%, 520px);
+      aspect-ratio: 1;
+      gap: 4px;
+      margin: 0 auto;
+      padding: 4px;
+      border: 1px solid #252a30;
+      border-radius: 8px;
+      background: #252a30;
+      overflow: hidden;
+    }
+
+    .cell {
+      min-width: 0;
+      padding: 0;
+      border: 0;
+      border-radius: 3px;
+      background: #fff;
+    }
+
+    .cell:focus-visible,
+    .color-button:focus-visible,
+    .eraser-button:focus-visible,
+    .actions button:focus-visible {
+      outline: 3px solid #135fbd;
+      outline-offset: 2px;
+      z-index: 1;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 20px 0 0;
+    }
+
+    .actions button {
+      min-height: 44px;
+      padding: 9px 14px;
+      border: 1px solid #9ca5af;
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .status {
+      min-height: 1.5em;
+      margin: 12px 0 0;
+      color: #515a65;
+      font-size: .9rem;
+    }
+
+    @media (max-width: 420px) {
+      body { width: min(100% - 20px, 680px); padding-top: 20px; }
+      .palette { gap: 8px; }
+      .color-button { min-width: 68px; padding: 7px; }
+    }
+
+    @media print {
+      :root, body { background: #fff; }
+      body { width: auto; padding: 0; }
+      h1 { margin: 0 0 16px; }
+      .intro, .palette, .actions, .status { display: none; }
+      .board { width: 16cm; max-width: 100%; border-radius: 0; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Mein 5 × 5-Farbmuster</h1>
+    <p class="intro">Wähle eine Farbe oder den Radiergummi und tippe auf ein Feld.</p>
+
+    <div class="palette" id="palette" role="group" aria-label="Farbe auswählen"></div>
+    <div class="board" id="board" role="group" aria-label="Farbfeld mit 25 Feldern"></div>
+
+    <div class="actions" aria-label="Aktionen">
+      <button id="clearButton" type="button">Alle Felder leeren</button>
+      <button id="printButton" type="button">Drucken</button>
+      <button id="fullscreenButton" type="button">Vollbild</button>
+    </div>
+    <p class="status" id="status" role="status" aria-live="polite"></p>
+  </main>
+
+  <script>
+    "use strict";
+
+    const colors = [
+      { name: "Gelb", value: "#ffda44" },
+      { name: "Rot", value: "#eb5757" },
+      { name: "Blau", value: "#4285e8" },
+      { name: "Grün", value: "#56b870" },
+      { name: "Lila", value: "#aa7ad8" },
+      { name: "Orange", value: "#f39b43" }
+    ];
+
+    const palette = document.querySelector("#palette");
+    const board = document.querySelector("#board");
+    const status = document.querySelector("#status");
+    let selectedColor = 0;
+    const cells = Array(25).fill(-1);
+
+    function drawPalette() {
+      palette.replaceChildren();
+
+      colors.forEach((color, index) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "color-button";
+        button.setAttribute("aria-pressed", String(selectedColor === index));
+        button.setAttribute("aria-label", `${color.name} auswählen`);
+
+        const swatch = document.createElement("span");
+        swatch.className = "swatch";
+        swatch.style.backgroundColor = color.value;
+        swatch.setAttribute("aria-hidden", "true");
+
+        const label = document.createElement("span");
+        label.textContent = color.name;
+        button.append(swatch, label);
+        button.addEventListener("click", () => {
+          selectedColor = index;
+          status.textContent = `${color.name} ausgewählt.`;
+          drawPalette();
+        });
+        palette.append(button);
+      });
+
+      const eraser = document.createElement("button");
+      eraser.type = "button";
+      eraser.className = "eraser-button";
+      eraser.textContent = "⌫ Radiergummi";
+      eraser.setAttribute("aria-pressed", String(selectedColor === -1));
+      eraser.addEventListener("click", () => {
+        selectedColor = -1;
+        status.textContent = "Radiergummi ausgewählt.";
+        drawPalette();
+      });
+      palette.append(eraser);
+    }
+
+    function updateCell(button, index) {
+      const colorIndex = cells[index];
+      button.style.backgroundColor = colorIndex < 0 ? "#ffffff" : colors[colorIndex].value;
+      button.setAttribute(
+        "aria-label",
+        `Feld ${index + 1}${colorIndex < 0 ? ", leer" : `, ${colors[colorIndex].name}`}`
+      );
+    }
+
+    function drawBoard() {
+      board.replaceChildren();
+      cells.forEach((_, index) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "cell";
+        updateCell(button, index);
+        button.addEventListener("click", () => {
+          cells[index] = selectedColor;
+          updateCell(button, index);
+          status.textContent = selectedColor < 0
+            ? `Feld ${index + 1} geleert.`
+            : `Feld ${index + 1} ist jetzt ${colors[selectedColor].name}.`;
+        });
+        board.append(button);
+      });
+    }
+
+    document.querySelector("#clearButton").addEventListener("click", () => {
+      cells.fill(-1);
+      drawBoard();
+      status.textContent = "Alle Felder wurden geleert.";
+    });
+
+    document.querySelector("#printButton").addEventListener("click", () => window.print());
+
+    document.querySelector("#fullscreenButton").addEventListener("click", async () => {
+      try {
+        if (document.fullscreenElement) {
+          await document.exitFullscreen();
+        } else if (document.documentElement.requestFullscreen) {
+          await document.documentElement.requestFullscreen();
+        } else {
+          status.textContent = "Der Browser unterstützt keinen Vollbildmodus.";
+        }
+      } catch {
+        status.textContent = "Der Vollbildmodus konnte nicht gestartet werden.";
+      }
+    });
+
+    drawPalette();
+    drawBoard();
+  </script>
+</body>
+</html>
