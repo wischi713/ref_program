@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f7fb">
+<title>Plättchen teilen – ggT entdecken</title>
+<style>
+  :root{--ink:#17243a;--muted:#68758b;--line:#dce3ed;--paper:#fff;--bg:#f4f7fb;--blue:#3478e5;--red:#ed6b63;--green:#18845d;--amber:#a75b08;--shadow:0 8px 24px #17243a0c}
+  *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
+  main{max-width:1120px;margin:auto;padding:24px clamp(14px,3vw,32px) 42px} h1{font-size:clamp(1.65rem,4vw,2.25rem);line-height:1.1;margin:0 0 8px;letter-spacing:-.03em} h2{font-size:1.05rem;margin:0 0 12px} p{margin:0;color:var(--muted)}
+  .intro{margin-bottom:20px}.panel{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:var(--shadow);margin:14px 0}.controls{display:grid;grid-template-columns:repeat(4,minmax(115px,1fr));gap:12px;align-items:end}.control label{display:block;font-size:.83rem;font-weight:700;color:#46546b;margin:0 0 5px}.control input{width:100%;min-height:44px;border:1px solid #c9d3e1;border-radius:10px;padding:8px 10px;font:inherit;color:var(--ink);background:#fff}.actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:14px}button{font:inherit;cursor:pointer}.btn{border:0;border-radius:10px;min-height:42px;padding:9px 15px;background:#eaf0f8;color:var(--ink);font-weight:700}.btn.primary{background:var(--blue);color:#fff}.btn:hover{filter:brightness(.97)}.btn:focus-visible,input:focus-visible,.tile:focus-visible{outline:3px solid #96bbff;outline-offset:2px}
+  .challenge{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.count{font-size:1.5rem;font-weight:800;letter-spacing:-.03em}.dot{width:15px;height:15px;border-radius:50%;display:inline-block;vertical-align:-1px;margin-right:5px}.dot.red{background:var(--red)}.dot.blue{background:var(--blue)}.x{font-size:1.1rem;color:#9aa5b5}.divider{height:1px;background:var(--line);margin:15px 0}.field-tools{display:flex;align-items:center;gap:9px;flex-wrap:wrap}.field-tools label{font-weight:700}.field-tools input{width:82px;min-height:42px;border:1px solid #c9d3e1;border-radius:10px;padding:7px 9px;font:inherit}.hint{font-size:.92rem}
+  .board{display:grid;grid-template-columns:minmax(220px, .75fr) minmax(0,2fr);gap:14px}.tray,.fields-wrap{border:1px solid var(--line);background:#f9fbfe;border-radius:14px;padding:13px;min-width:0}.zone-title{font-size:.88rem;font-weight:800;margin-bottom:8px}.tray-inner{min-height:250px;display:flex;flex-direction:column;gap:12px}.tile-stack{border:1px dashed #cbd5e2;border-radius:12px;padding:9px;min-height:88px;background:#fff}.stack-label{font-size:.78rem;color:var(--muted);font-weight:700;margin-bottom:7px}.tiles{display:flex;flex-wrap:wrap;gap:6px;align-content:flex-start}.tile{width:31px;height:31px;border:0;border-radius:9px;box-shadow:inset 0 -3px #00000016,0 2px 4px #15223918;touch-action:none;user-select:none;-webkit-user-select:none;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:.7rem;font-weight:800}.tile.red{background:var(--red)}.tile.blue{background:var(--blue)}.tile.placed{width:27px;height:27px;border-radius:8px}.tile.dragging{opacity:.2}.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:9px;max-height:590px;overflow:auto;padding:1px}.field{min-height:100px;border:2px dashed #c8d3e1;border-radius:12px;background:#fff;padding:7px;transition:background .12s,border-color .12s}.field.over,.tile-stack.over{background:#eef5ff;border-color:#77a6f4}.field-head{font-size:.75rem;font-weight:800;color:#64728a;margin-bottom:6px}.field .tiles{min-height:55px;gap:4px}.field .tile{cursor:grab}.fields-note{font-size:.82rem;color:var(--muted);margin-top:8px}.feedback{min-height:52px;padding:12px 14px;border-radius:12px;background:#f0f3f8;color:#42516a;margin-top:14px}.feedback.good{background:#eaf7f0;color:#176546}.feedback.warn{background:#fff5e7;color:#8a4c08}.feedback.error{background:#fff0ef;color:#9a3630}.foot{font-size:.82rem;margin-top:12px;color:var(--muted)}
+  @media(max-width:720px){main{padding-top:18px}.controls{grid-template-columns:repeat(2,minmax(0,1fr))}.board{grid-template-columns:1fr}.tray-inner{min-height:0}.fields{grid-template-columns:repeat(auto-fit,minmax(105px,1fr));max-height:420px}.field{min-height:95px}}
+</style>
+</head>
+<body>
+<main>
+  <header class="intro"><h1>Plättchen teilen</h1><p>Entdecke den größten gemeinsamen Teiler: Verteile beide Farben gleichmäßig auf möglichst viele Felder.</p></header>
+  <section class="panel" aria-label="Zahlen einstellen">
+    <h2>Aufgabe einstellen</h2>
+    <div class="controls">
+      <div class="control"><label for="minNum">Zahlenbereich von</label><input id="minNum" type="number" min="1" max="100" value="2"></div>
+      <div class="control"><label for="maxNum">bis</label><input id="maxNum" type="number" min="1" max="100" value="20"></div>
+      <div class="control"><label for="redCount">Rote Plättchen</label><input id="redCount" type="number" min="1" max="100" value="16"></div>
+      <div class="control"><label for="blueCount">Blaue Plättchen</label><input id="blueCount" type="number" min="1" max="100" value="20"></div>
+    </div>
+    <div class="actions"><button class="btn primary" id="applyBtn">Aufgabe übernehmen</button><button class="btn" id="randomBtn">Zufallsaufgabe</button></div>
+  </section>
+  <section class="panel">
+    <div class="challenge" id="challenge" aria-live="polite"></div>
+    <div class="divider"></div>
+    <div class="field-tools"><label for="fieldCount">Anzahl der Felder:</label><input id="fieldCount" type="number" min="1" value="2"><button class="btn" id="setFields">Felder anzeigen</button><span class="hint">Ziehe jedes Plättchen in ein Feld. Du kannst es auch zurück in die Ablage ziehen.</span></div>
+  </section>
+  <section class="panel" aria-label="Plättchen verteilen">
+    <div class="board">
+      <div class="tray"><div class="zone-title">Plättchen-Ablage</div><div class="tray-inner" id="tray">
+        <div class="tile-stack" id="redTray" data-color="red"><div class="stack-label"><span class="dot red"></span>Rot</div><div class="tiles"></div></div>
+        <div class="tile-stack" id="blueTray" data-color="blue"><div class="stack-label"><span class="dot blue"></span>Blau</div><div class="tiles"></div></div>
+      </div></div>
+      <div class="fields-wrap"><div class="zone-title">Deine Felder</div><div class="fields" id="fields"></div><div class="fields-note">Jedes Feld soll gleich viele rote und gleich viele blaue Plättchen enthalten.</div></div>
+    </div>
+    <div class="actions"><button class="btn primary" id="checkBtn">Verteilung prüfen</button><button class="btn" id="autoBtn">Automatisch verteilen</button><button class="btn" id="resetBtn">Plättchen zurücklegen</button></div>
+    <div class="feedback" id="feedback" role="status" aria-live="polite">Lege zuerst die gewünschte Feldzahl fest und verteile dann die Plättchen.</div>
+    <p class="foot">Bedienung: Plättchen mit Maus, Finger oder Stift ziehen. Auf dem iPad funktioniert Ziehen per Berührung.</p>
+  </section>
+</main>
+<script>
+(()=>{
+  const $=id=>document.getElementById(id); let counts={red:12,blue:18}; let drag=null;
+  const gcd=(a,b)=>b===0?a:gcd(b,a%b);
+  function say(text,kind=''){const el=$('feedback');el.textContent=text;el.className='feedback'+(kind?' '+kind:'')}
+  function updateChallenge(){ $('challenge').innerHTML=`<span class="count"><span class="dot red"></span>${counts.red}</span><span class="x">und</span><span class="count"><span class="dot blue"></span>${counts.blue}</span><span class="hint">Plättchen</span>`; }
+  function makeTile(color,n){const b=document.createElement('button');b.type='button';b.className='tile '+color;b.textContent='';b.setAttribute('aria-label',(color==='red'?'Rotes':'Blaues')+' Plättchen '+n);b.dataset.color=color;b.dataset.id=color+'-'+n;b.addEventListener('pointerdown',startDrag);return b}
+  function build(){
+    updateChallenge(); $('redTray').querySelector('.tiles').replaceChildren();$('blueTray').querySelector('.tiles').replaceChildren();
+    for(const color of ['red','blue'])for(let i=1;i<=counts[color];i++)$(''+color+'Tray').querySelector('.tiles').append(makeTile(color,i));
+    const fieldN=Math.max(1,Math.min(100,parseInt($('fieldCount').value,10)||1));$('fieldCount').value=fieldN; const fs=$('fields');fs.replaceChildren();
+    for(let i=1;i<=fieldN;i++){const f=document.createElement('div');f.className='field';f.dataset.field=i;f.innerHTML=`<div class="field-head">Feld ${i}</div><div class="tiles"></div>`;fs.append(f)}
+    say('Ziehe jedes Plättchen in ein Feld.');
+  }
+  function startDrag(e){if(e.button!==undefined&&e.button!==0)return;e.preventDefault();const tile=e.currentTarget, r=tile.getBoundingClientRect(), ghost=tile.cloneNode(true);ghost.classList.add('drag-ghost');Object.assign(ghost.style,{position:'fixed',left:(e.clientX-r.width/2)+'px',top:(e.clientY-r.height/2)+'px',zIndex:10000,pointerEvents:'none',width:r.width+'px',height:r.height+'px',margin:'0'});document.body.append(ghost);tile.classList.add('dragging');drag={tile,ghost,pointer:e.pointerId};tile.setPointerCapture?.(e.pointerId);document.addEventListener('pointermove',moveDrag);document.addEventListener('pointerup',endDrag,{once:true});document.addEventListener('pointercancel',endDrag,{once:true});}
+  function moveDrag(e){if(!drag)return;drag.ghost.style.left=(e.clientX-drag.ghost.offsetWidth/2)+'px';drag.ghost.style.top=(e.clientY-drag.ghost.offsetHeight/2)+'px';document.querySelectorAll('.over').forEach(x=>x.classList.remove('over'));const t=document.elementFromPoint(e.clientX,e.clientY)?.closest('.field,.tile-stack');t?.classList.add('over')}
+  function endDrag(e){if(!drag)return;const {tile,ghost}=drag;const target=document.elementFromPoint(e.clientX,e.clientY)?.closest('.field,.tile-stack');if(target){const holder=target.classList.contains('field')?target.querySelector('.tiles'):target.querySelector('.tiles');tile.classList.toggle('placed',target.classList.contains('field'));holder.append(tile)}tile.classList.remove('dragging');ghost.remove();document.querySelectorAll('.over').forEach(x=>x.classList.remove('over'));drag=null;document.removeEventListener('pointermove',moveDrag)}
+  function applyCounts(r,b){counts={red:r,blue:b};$('redCount').value=r;$('blueCount').value=b;$('fieldCount').value=1;build()}
+  $('applyBtn').addEventListener('click',()=>{let lo=Number($('minNum').value),hi=Number($('maxNum').value),r=Number($('redCount').value),b=Number($('blueCount').value);if(!Number.isInteger(lo)||!Number.isInteger(hi)||lo<1||hi>100||lo>hi){say('Bitte einen gültigen Zahlenbereich von 1 bis 100 eingeben.','error');return}if(!Number.isInteger(r)||!Number.isInteger(b)||r<lo||b<lo||r>hi||b>hi){say('Die beiden Plättchenzahlen müssen innerhalb des eingestellten Bereichs liegen.','error');return}applyCounts(r,b)});
+  $('randomBtn').addEventListener('click',()=>{const pairs=[];for(let r=2;r<=40;r++)for(let b=r+1;b<=40;b++)if(gcd(r,b)>1)pairs.push([r,b]);const [r,b]=pairs[Math.floor(Math.random()*pairs.length)];$('minNum').value=1;$('maxNum').value=40;applyCounts(r,b);say(`Zufallsaufgabe: ${r} rote und ${b} blaue Plättchen. Verteile sie auf möglichst viele Felder.`)});
+  $('setFields').addEventListener('click',()=>{const n=Number($('fieldCount').value);if(!Number.isInteger(n)||n<1||n>Math.min(counts.red,counts.blue)){say(`Wähle eine Feldzahl zwischen 1 und ${Math.min(counts.red,counts.blue)}.`, 'error');return}build()});
+  $('autoBtn').addEventListener('click',()=>{const n=Number($('fieldCount').value);if(!Number.isInteger(n)||n<1||n>Math.min(counts.red,counts.blue)){say(`Wähle eine Feldzahl zwischen 1 und ${Math.min(counts.red,counts.blue)}.`, 'error');return}if(document.querySelectorAll('.field').length!==n)build();for(const tile of document.querySelectorAll('.field .tile')){tile.classList.remove('placed');$(tile.dataset.color+'Tray').querySelector('.tiles').append(tile)}const fields=[...document.querySelectorAll('.field')];for(const color of ['red','blue']){const tiles=[...$(''+color+'Tray').querySelectorAll('.tile')],perField=Math.floor(counts[color]/n),toPlace=perField*n;tiles.slice(0,toPlace).forEach((tile,i)=>{tile.classList.add('placed');fields[Math.floor(i/perField)].querySelector('.tiles').append(tile)})}const restRed=counts.red%n,restBlue=counts.blue%n;const msg=`Automatisch verteilt: Jedes der ${n} Felder enthält ${Math.floor(counts.red/n)} rote und ${Math.floor(counts.blue/n)} blaue Plättchen.`+(restRed||restBlue?` Übrig in der Ablage: ${restRed} rote und ${restBlue} blaue Plättchen.`:'');say(msg,restRed||restBlue?'warn':'good')});
+  $('resetBtn').addEventListener('click',()=>{for(const f of document.querySelectorAll('.field'))for(const tile of [...f.querySelectorAll('.tile')]){tile.classList.remove('placed');$(tile.dataset.color+'Tray').querySelector('.tiles').append(tile)}say('Alle Plättchen liegen wieder in der Ablage.')});
+  $('checkBtn').addEventListener('click',()=>{const fs=[...document.querySelectorAll('.field')],n=fs.length,reds=fs.map(f=>f.querySelectorAll('.tile.red').length),blues=fs.map(f=>f.querySelectorAll('.tile.blue').length),restRed=$('redTray').querySelectorAll('.tile').length,restBlue=$('blueTray').querySelectorAll('.tile').length,baseRed=Math.floor(counts.red/n),baseBlue=Math.floor(counts.blue/n);if(reds.some(x=>x!==reds[0])||blues.some(x=>x!==blues[0])){say('Noch nicht gleichmäßig: In jedem Feld muss dieselbe Anzahl roter und dieselbe Anzahl blauer Plättchen liegen.','warn');return}if(reds[0]!==baseRed||blues[0]!==baseBlue||restRed!==counts.red%n||restBlue!==counts.blue%n){say(`Die Verteilung ist noch nicht vollständig. Bei ${n} Feldern gehören je ${baseRed} rote und ${baseBlue} blaue Plättchen in jedes Feld; übrig bleiben ${counts.red%n} rote und ${counts.blue%n} blaue Plättchen.`,'warn');return}const g=gcd(counts.red,counts.blue);if(restRed||restBlue)say(`Die Felder sind gleichmäßig belegt. In der Ablage bleiben ${restRed} rote und ${restBlue} blaue Plättchen übrig. Daher ist ${n} kein gemeinsamer Teiler. Der ggT ist ${g}.`,'warn');else if(n===g)say(`Richtig! ${n} ist der ggT von ${counts.red} und ${counts.blue}. Jedes Feld enthält ${counts.red/n} rote und ${counts.blue/n} blaue Plättchen.`,'good');else if(n<g)say(`Das ist eine gleichmäßige Verteilung, aber es geht noch auf mehr Felder. Der ggT ist ${g}.`,'warn');else say(`Die Verteilung ist nicht möglich: Der ggT ist ${g}, daher können höchstens ${g} gleich große Felder entstehen.`,'warn')});
+  build();
+})();
+</script>
+</body>
+</html>
