@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f7f8fa">
+<title>Vielfache auf dem Zahlenstrahl – kgV entdecken</title>
+<style>
+  :root{--ink:#17212d;--muted:#667383;--line:#1d2631;--paper:#fff;--bg:#f5f7fa;--green:#72bd65;--green-dark:#3f8d45;--pink:#e85ab9;--pink-dark:#be3291;--gold:#e2a72d;--border:#dce2e9;--shadow:0 8px 26px #1b2a3b0c}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
+  main{max-width:1100px;margin:auto;padding:clamp(16px,3vw,30px)}
+  header{margin:0 0 20px}h1{font-size:clamp(1.65rem,4vw,2.25rem);line-height:1.15;letter-spacing:-.035em;margin:0 0 7px}header p{margin:0;color:var(--muted)}
+  .panel{background:var(--paper);border:1px solid var(--border);border-radius:18px;padding:clamp(14px,2.4vw,24px);box-shadow:var(--shadow);margin:14px 0}
+  .controls{display:flex;align-items:end;flex-wrap:wrap;gap:12px}.control{min-width:120px;flex:1 1 140px}.control label{display:block;font-size:.85rem;font-weight:750;color:#4c5a6a;margin-bottom:5px}.control input{width:100%;height:46px;border:1px solid #c9d2dd;border-radius:11px;background:#fff;color:var(--ink);padding:8px 12px;font:inherit;font-size:1.12rem;font-weight:700}.control.first input{border-color:#a5d69d;box-shadow:inset 4px 0 var(--green)}.control.second input{border-color:#f1a6d9;box-shadow:inset 4px 0 var(--pink)}
+  button{font:inherit}.btn{min-height:46px;border:0;border-radius:11px;padding:10px 18px;background:#1e2937;color:#fff;font-weight:750;cursor:pointer}.btn:hover{background:#344355}.btn:focus-visible,input:focus-visible{outline:3px solid #97bdf7;outline-offset:2px}.range-note{font-size:.83rem;color:var(--muted);margin:10px 0 0}
+  .error{margin-top:12px;padding:10px 12px;border-radius:10px;background:#fff0ee;color:#9a3932;display:none}.error.show{display:block}
+  .diagram{overflow:hidden}.diagram-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.diagram-title{display:flex;align-items:center;gap:9px;font-weight:750;color:#425064;margin:0 0 8px}.toggle{min-height:38px;border:1px solid #d8dee6;border-radius:10px;padding:7px 12px;background:#fff;color:#344356;font-size:.87rem;font-weight:700;cursor:pointer}.toggle[aria-pressed="true"]{background:#fff4d8;border-color:#edcf83;color:#76540f}.legend{display:flex;flex-wrap:wrap;gap:16px;margin:0 0 10px;color:#49576a;font-size:.88rem}.legend-item{display:inline-flex;align-items:center;gap:7px}.swatch{width:12px;height:12px;border-radius:50%;display:inline-block}.swatch.green{background:var(--green)}.swatch.pink{background:var(--pink)}.swatch.gold{background:var(--gold)}
+  .svg-wrap{width:100%;overflow-x:auto;overscroll-behavior-x:contain}.svg-wrap svg{display:block;width:100%;min-width:580px;height:auto}.axis{stroke:var(--line);stroke-width:2.3;stroke-linecap:round}.divider{stroke:#8491a0;stroke-width:1.4;stroke-dasharray:5 6;opacity:.55}.tick{stroke-width:2;stroke-linecap:round}.tick.green{stroke:var(--green-dark)}.tick.pink{stroke:var(--pink-dark)}.tick.shared{stroke:#29313b;stroke-width:3}.guide{stroke:var(--gold);stroke-width:1.5;stroke-dasharray:4 5;opacity:.8}.common-dot{fill:var(--gold);stroke:#fff;stroke-width:2}.track-badge{font-size:18px;font-weight:850;text-anchor:middle;dominant-baseline:middle}.tag-green{fill:#e7f5e3;stroke:#b7ddb0}.tag-pink{fill:#fde8f5;stroke:#f2b8dd}.common-caption{fill:#805b10;font-size:12px;font-weight:750;text-anchor:middle}.tick-label{font-size:13px;font-weight:700;text-anchor:middle}.tick-label.green-label{fill:#347d3c}.tick-label.pink-label{fill:#b52b86}.tick-label.highlight-label{fill:#805b10;font-weight:850}.full-sequences{display:none;margin-top:8px;border-top:1px solid #edf0f4;padding-top:10px}.full-sequences.show{display:block}.sequence-row{display:flex;align-items:flex-start;gap:9px;margin:5px 0}.sequence-name{flex:0 0 145px;font-size:.82rem;font-weight:750;white-space:nowrap;padding-top:3px}.sequence-name.green{color:#347d3c}.sequence-name.pink{color:#b52b86}.sequence-values{min-width:0;overflow-x:auto;white-space:nowrap;font-size:.85rem;color:#455367;padding:3px 0 7px;scrollbar-width:thin}.sequence-values span{display:inline-block;margin-right:8px}.sequence-values .common-value{font-weight:850;color:#805b10;background:#fff2d1;border-radius:5px;padding:0 3px}
+  .result{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding-top:14px;border-top:1px solid #edf0f4;margin-top:7px}.result strong{font-size:1.12rem}.kgv-value{display:inline-flex;align-items:center;justify-content:center;min-width:50px;height:42px;padding:0 13px;border-radius:12px;background:#fff2d1;color:#805b10;font-weight:850;font-size:1.2rem}.sequence{color:#596778}.sequence b{color:var(--ink);font-weight:750}.help{font-size:.87rem;color:var(--muted);margin:12px 0 0}
+  @media(max-width:620px){main{padding:15px 12px 24px}.controls{gap:9px}.control{min-width:calc(50% - 6px);flex-basis:calc(50% - 6px)}.controls .btn{width:100%}.legend{gap:10px}.svg-wrap svg{min-width:560px}}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Vielfache auf dem Zahlenstrahl</h1>
+    <p>Vergleiche die Vielfachen zweier Zahlen und entdecke ihr kleinstes gemeinsames Vielfaches.</p>
+  </header>
+  <section class="panel" aria-label="Zahlen eingeben">
+    <div class="controls">
+      <div class="control first"><label for="numberA">Erste Zahl</label><input id="numberA" type="number" inputmode="numeric" min="1" max="100" step="1" value="2"></div>
+      <div class="control second"><label for="numberB">Zweite Zahl</label><input id="numberB" type="number" inputmode="numeric" min="1" max="100" step="1" value="3"></div>
+      <button class="btn" id="showBtn" type="button">Zahlenstrahl anzeigen</button>
+    </div>
+    <p class="range-note">Gib zwei ganze Zahlen von 1 bis 100 ein.</p>
+    <div id="error" class="error" role="alert"></div>
+  </section>
+  <section class="panel diagram" aria-label="Zahlenstrahlen und Vielfache">
+    <div class="diagram-heading"><p class="diagram-title">Die Vielfachen auf zwei parallelen Zahlenstrahlen</p><button class="toggle" id="highlightBtn" type="button" aria-pressed="false">Gemeinsame Vielfache hervorheben</button></div>
+    <div class="legend" aria-label="Legende">
+      <span class="legend-item"><i class="swatch green"></i>Vielfache der ersten Zahl</span>
+      <span class="legend-item"><i class="swatch pink"></i>Vielfache der zweiten Zahl</span>
+      <span class="legend-item"><i class="swatch gold"></i>gemeinsame Vielfache</span>
+    </div>
+    <div class="svg-wrap" id="chart"></div>
+    <div class="full-sequences" id="fullSequences" aria-label="Vollständige Vielfachenfolgen"><div class="sequence-row"><span class="sequence-name green" id="sequenceNameA"></span><div class="sequence-values" id="multiplesA"></div></div><div class="sequence-row"><span class="sequence-name pink" id="sequenceNameB"></span><div class="sequence-values" id="multiplesB"></div></div></div>
+    <div class="result" aria-live="polite">
+      <strong>kgV(<span id="aLabel">2</span>, <span id="bLabel">3</span>) =</strong>
+      <span class="kgv-value" id="lcmLabel">6</span>
+      <span class="sequence">Die ersten vier gemeinsamen Vielfachen: <b id="sequence">6, 12, 18, 24</b></span>
+    </div>
+    <p class="help">Die goldenen Verbindungslinien lassen sich über den Button ein- und ausblenden. Der Zahlenstrahl endet beim vierten gemeinsamen Vielfachen.</p>
+  </section>
+</main>
+<script>
+(()=>{
+  const $=id=>document.getElementById(id);
+  const NS='http://www.w3.org/2000/svg';
+  let highlightCommon=false;
+  const gcd=(a,b)=>b===0?a:gcd(b,a%b);
+  const el=(tag,attrs={},text)=>{const node=document.createElementNS(NS,tag);for(const [k,v]of Object.entries(attrs))node.setAttribute(k,v);if(text!==undefined)node.textContent=text;return node};
+  function draw(a,b){
+    const g=gcd(a,b),lcm=a/g*b,end=lcm*4;
+    const W=1000,H=430,x0=110,x1=970,y1=165,y2=290,axisWidth=x1-x0;
+    const xFor=value=>x0+value/end*axisWidth;
+    const countA=end/a,countB=end/b,labelsFit=Math.max(countA,countB)<=36;
+    const strideA=labelsFit?1:Math.ceil(countA/32),strideB=labelsFit?1:Math.ceil(countB/32);
+    const svg=el('svg',{viewBox:`0 0 ${W} ${H}`,role:'img','aria-label':`Zwei Zahlenstrahlen: Vielfache von ${a} und ${b}. Die ersten vier gemeinsamen Vielfachen sind ${lcm}, ${lcm*2}, ${lcm*3} und ${lcm*4}.`});
+    svg.style.minWidth=`${Math.max(580,labelsFit?Math.max(countA,countB)*24+140:1000)}px`;
+    // Subtle dashed divider, matching the supplied sketch.
+    svg.append(el('line',{x1:20,y1:(y1+y2)/2,x2:985,y2:(y1+y2)/2,class:'divider'}));
+    // Optional guides connect the first four positive common multiples.
+    if(highlightCommon)for(let k=1;k<=4;k++){const x=xFor(k*lcm);svg.append(el('line',{x1:x,y1:y1+12,x2:x,y2:y2-12,class:'guide'}))}
+    // Parallel number lines.
+    svg.append(el('line',{x1:x0,y1,x2:x1,y2:y1,class:'axis'}));
+    svg.append(el('line',{x1:x0,y1:y2,x2:x1,y2:y2,class:'axis'}));
+    // Number badges at the left identify the sequence on each line.
+    svg.append(el('rect',{x:20,y:y1-22,width:52,height:44,rx:12,class:'tag-green'}));
+    svg.append(el('text',{x:46,y:y1,fill:'#347d3c',class:'track-badge'},String(a)));
+    svg.append(el('rect',{x:20,y:y2-22,width:52,height:44,rx:12,class:'tag-pink'}));
+    svg.append(el('text',{x:46,y:y2,fill:'#b52b86',class:'track-badge'},String(b)));
+    // Zero and input multiples, each with a matching number label when space allows.
+    svg.append(el('line',{x1:x0,y1:y1-14,x2:x0,y2:y1+14,class:'tick green'}));
+    svg.append(el('line',{x1:x0,y1:y2-14,x2:x0,y2:y2+14,class:'tick pink'}));
+    svg.append(el('text',{x:x0,y:y1-25,class:'tick-label green-label'},'0'));
+    svg.append(el('text',{x:x0,y:y2+31,class:'tick-label pink-label'},'0'));
+    let index=1;
+    for(let value=a;value<=end;value+=a,index++){
+      const x=xFor(value),shared=value%lcm===0,marked=shared&&highlightCommon;
+      svg.append(el('line',{x1:x,y1:y1-(marked?22:12),x2:x,y2:y1+(marked?22:12),class:`tick green${marked?' shared':''}`}));
+      if(marked)svg.append(el('circle',{cx:x,cy:y1,r:6.5,class:'common-dot'}));
+      if(labelsFit||index%strideA===0||value===end)svg.append(el('text',{x,y:y1-25,class:`tick-label green-label${marked?' highlight-label':''}`},String(value)));
+    }
+    index=1;
+    for(let value=b;value<=end;value+=b,index++){
+      const x=xFor(value),shared=value%lcm===0,marked=shared&&highlightCommon;
+      svg.append(el('line',{x1:x,y1:y2-(marked?22:12),x2:x,y2:y2+(marked?22:12),class:`tick pink${marked?' shared':''}`}));
+      if(marked)svg.append(el('circle',{cx:x,cy:y2,r:6.5,class:'common-dot'}));
+      if(labelsFit||index%strideB===0||value===end)svg.append(el('text',{x,y:y2+31,class:`tick-label pink-label${marked?' highlight-label':''}`},String(value)));
+    }
+    if(highlightCommon)for(let k=1;k<=4;k++){const x=xFor(k*lcm);svg.append(el('text',{x,y:((y1+y2)/2)+5,class:'common-caption'},`${k}.`))}
+    $('chart').replaceChildren(svg);
+    $('aLabel').textContent=a;$('bLabel').textContent=b;$('lcmLabel').textContent=lcm;
+    $('sequence').textContent=[lcm,lcm*2,lcm*3,lcm*4].join(', ');
+    const list=$('fullSequences');list.classList.toggle('show',!labelsFit);
+    for(const [containerId,nameId,n,color]of [['multiplesA','sequenceNameA',a,'green'],['multiplesB','sequenceNameB',b,'pink']]){
+      $(nameId).textContent=`Vielfache von ${n}:`;
+      const row=$(containerId);row.replaceChildren();
+      for(let value=0;value<=end;value+=n){const item=document.createElement('span');item.textContent=String(value);if(value>0&&value%lcm===0&&highlightCommon)item.className='common-value';row.append(item)}
+    }
+  }
+  function update(){
+    const a=Number($('numberA').value),b=Number($('numberB').value),err=$('error');
+    if(!Number.isInteger(a)||!Number.isInteger(b)||a<1||b<1||a>100||b>100){err.textContent='Bitte gib für beide Zahlen eine ganze Zahl von 1 bis 100 ein.';err.classList.add('show');return}
+    err.textContent='';err.classList.remove('show');draw(a,b);
+  }
+  $('showBtn').addEventListener('click',update);
+  $('highlightBtn').addEventListener('click',()=>{highlightCommon=!highlightCommon;$('highlightBtn').setAttribute('aria-pressed',String(highlightCommon));$('highlightBtn').textContent=highlightCommon?'Gemeinsame Vielfache ausblenden':'Gemeinsame Vielfache hervorheben';update()});
+  for(const id of ['numberA','numberB'])$(id).addEventListener('keydown',e=>{if(e.key==='Enter')update()});
+  update();
+})();
+</script>
+</body>
+</html>
